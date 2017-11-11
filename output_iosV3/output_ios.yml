@@ -1,0 +1,25 @@
+---
+- name: Save Configurations (IOS)
+  hosts: routers
+  gather_facts: no
+  vars:
+    creds:
+      host: "{{ host }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+  tasks:
+    - ios_command:
+        provider: "{{ creds }}"
+        commands: 
+          - show run 
+          - show version
+      register: show_run
+      with_items: [1,2]
+
+    - debug:
+        msg: "{{ show_run.results[0].stdout_lines }}" 
+
+
+    - copy:
+        content: "{{ show_run.results[0].stdout_lines }}"
+        dest: "./output_ios/show_output_{{ inventory_hostname }}.txt"
